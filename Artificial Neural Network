@@ -1,0 +1,98 @@
+%% A simple Artificial Neural Network %%
+%
+% The ANN is trained with the "train" data and then is being tested with
+% the "test" data.
+% BLUE colour are train samples
+% Purple colour are Test samples that got categorized
+% Red Stars are Test samples that could not get categorized
+%
+%
+%% Author Christos Dionysopoulos %%
+%
+%
+%%
+
+data1                   %file that contain the train, test, data
+w=zeros(3,3);
+h=0.1;
+trained=false; i=1; j=1;
+while(~trained)
+    lx=train(i,:);
+    y1=sgn(w(1,:)*lx');
+    y2=sgn(w(2,:)*lx');
+    y3=sgn(w(3,:)*lx');
+    w(1,:)=w(1,:)+h*(output(i,1)-y1)*train(i,:);      %Weights for Line 1 
+    w(2,:)=w(2,:)+h*(output(i,2)-y2)*train(i,:);      %Weights for Line 2
+    w(3,:)=w(3,:)+h*(output(i,3)-y3)*train(i,:);      %Weights for Line 3
+    yy=zeros(size(output));
+    for j=1:size(train,1);
+        lx=train(j,:);
+        yy(j,1)=sgn(w(1,:)*lx');
+        yy(j,2)=sgn(w(2,:)*lx');
+        yy(j,3)=sgn(w(3,:)*lx');
+    end
+    %Unless the output of yy becomes what we have as desirable output in data array
+    %It will continue to train 
+    if all(output==yy)            
+        trained=true;           
+    end
+    i=i+1;
+    if i>size(output);
+        i=1;
+    end
+end
+hold on
+for i=1:size(train);
+    if (yy(i,:)==yy(1,:))                   %if the 1 is on first row = category 1          
+        plot(train(i,2),train(i,3),'sb');   %category 1 "x"
+    elseif (yy(i,:)==yy(2,:))               %if the 1 is on second row = category 2
+        plot(train(i,2),train(i,3),'ob');   %category 2 "o"
+    elseif (yy(i,:)==yy(4,:))               %if the 1 is on third row = category 3
+        plot(train(i,2),train(i,3),'^b');   %category 3 "c"
+    end
+end
+
+yytest=zeros(15,3);     %15 Samples to try our Artificial Neural Network
+
+%% Test File %%
+%Samples that got categorized are with colour Magneta (Purple). 
+%Samples that could not get categorized are Red Stars.
+
+for j=1:size(test);
+        lt=test(j,:);
+        yytest(j,1)=sgn(w(1,:)*lt');
+        yytest(j,2)=sgn(w(2,:)*lt');
+        yytest(j,3)=sgn(w(3,:)*lt');
+        if yytest(j,:)==[1 -1 -1]
+            x=sprintf('The %d element of test belongs in Category 1 %s',j);
+            plot(test(j,2),test(j,3),'sm');
+            disp(x);
+        elseif yytest(j,:)==[-1 1 -1]
+            x=sprintf('The %d element of test belongs in Category 2 %s',j);
+            plot(test(j,2),test(j,3),'om');
+            disp(x);
+        elseif yytest(j,:)==[-1 -1 1]
+            x=sprintf('The %d element of test belongs in Category 3 %s',j);
+            plot(test(j,2),test(j,3),'^m');
+            disp(x);
+        else
+            x=sprintf('The %d element of test is UNKNOWN Category%s',j);
+            plot(test(j,2),test(j,3),'*r');
+            disp(x);
+        end       
+end
+
+%% Plotting the Lines %%
+
+X=-10:10;
+
+%Calculating the Y of the 3 lines %
+
+Y1=(-w(1,2)*X-w(1,1))/w(1,3);       
+Y2=(-w(2,2)*X-w(2,1))/w(2,3);
+Y3=(-w(3,2)*X-w(3,1))/w(3,3);
+plot(X,Y1,'g-');                    %First Line
+plot(X,Y2,'g-');                    %Second Line
+plot(X,Y3,'g-');                    %Third Line
+axis ([-10 10 -10 10]), axis square , grid on;
+drawnow;
